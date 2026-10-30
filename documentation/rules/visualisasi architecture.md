@@ -54,6 +54,7 @@ graph TD
             repoImpl[KaryawanRepositoryImpl.ts]:::data
             mapper[KaryawanMapper.ts]:::data
             dto[KaryawanDTO.ts]:::data
+            apiService[KaryawanApiService.ts]:::data
         end
     end
 
@@ -72,14 +73,15 @@ graph TD
     repoInterface --> entity
     
     repoImpl -.->|Implements| repoInterface
+    repoImpl --> apiService
     repoImpl --> mapper
     
+    apiService --> apiClient
     repoImpl --> dto
     mapper --> dto
     mapper --> entity
 
     %% External Connections
-    repoImpl --> apiClient
     screen --> sharedUI
     
     %% Public API Gate Connection

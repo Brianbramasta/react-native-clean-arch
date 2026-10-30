@@ -2,12 +2,12 @@ import { IKaryawanRepository } from "../../domain/repositories/KaryawanRepositor
 import { Karyawan } from "../../domain/entities/Karyawan";
 import { KaryawanDTO } from "../dtos/KaryawanDTO";
 import { KaryawanMapper } from "../mappers/KaryawanMapper";
-import { apiClient } from "../../../../shared/infrastructure/apiClient";
+import { KaryawanApiService } from "../services/KaryawanApiService";
 
 const MOCK_DATA: KaryawanDTO[] = [
   {
     id_karyawan: 1,
-    nama_lengkap: "Ahmad Rizky Pratama",
+    nama_lengkap: "Ahmad Rizky Pratamars",
     jabatan_code: "MGR",
     created_at: "2023-01-15T10:00:00.000Z",
   },
@@ -56,10 +56,12 @@ const MOCK_DATA: KaryawanDTO[] = [
 ];
 
 export class KaryawanRepositoryImpl implements IKaryawanRepository {
+  constructor(private apiService: KaryawanApiService = new KaryawanApiService()) {}
+
   async getAllKaryawan(): Promise<Karyawan[]> {
     try {
-      const response = await apiClient.get<KaryawanDTO[]>("/v1/karyawan");
-      return response.data.map(KaryawanMapper.toEntity);
+      const dtos = await this.apiService.fetchAllKaryawan();
+      return dtos.map(KaryawanMapper.toEntity);
     } catch {
       const mockEntities = MOCK_DATA.map(KaryawanMapper.toEntity);
       return mockEntities.sort(

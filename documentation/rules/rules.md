@@ -19,7 +19,7 @@ src/
     └── karyawan/                 # 📦 Feature: Karyawan
         ├── index.ts              # 🚪 Feature Public API (Penjaga gawang)
         │
-        ├── domain/               # 🧠 Domain Layer - PURE TS (Otak bisnis murni)
+├── domain/               # 🧠 Domain Layer - PURE TS (Otak bisnis murni)
         │   ├── entities/         # Karyawan.ts
         │   ├── repositories/     # IKaryawanRepository.interface.ts
         │   └── usecases/         # GetKaryawanUseCase.ts
@@ -27,8 +27,8 @@ src/
         ├── data/                 # 💾 Data Layer (Urusan Axios & mapping API)
         │   ├── dtos/             # KaryawanDTO.ts (Sesuai JSON response Express)
         │   ├── mappers/          # KaryawanMapper.ts
-	        ├── services/         # KaryawanApiService.ts -> (Murni tempat fungsi Axios/Hit Database) 
-	        └── repositories/     # KaryawanRepositoryImpl.ts -> (Memanggil ApiService + Mapper)
+        │   ├── services/         # KaryawanApiService.ts -> (Murni tempat fungsi Axios/Hit Database)
+        │   └── repositories/     # KaryawanRepositoryImpl.ts -> (Memanggil ApiService + Mapper)
         │
         ├── di/                   # 🔌 DI Layer (Perakit dependensi)
         │   └── container.ts      # Instansiasi UseCase siap pakai
@@ -140,22 +140,40 @@ export class KaryawanMapper {
 
 ### 📁 `data/repositories/KaryawanRepositoryImpl.ts`
 
-- **Fungsi:** Implementasi nyata dari kontrak interface di Domain. Di sini instansiasi HTTP client (`apiClient`) global dipanggil untuk melakukan hit ke API.
+- **Fungsi:** Implementasi nyata dari kontrak interface di Domain. Memanggil API Service untuk mengambil data.
 - **Contoh Isi:**
 
 ```typescript
 import { IKaryawanRepository } from "../../domain/repositories/KaryawanRepository.interface";
 import { Karyawan } from "../../domain/entities/Karyawan";
-import { KaryawanDTO } from "../dtos/KaryawanDTO";
 import { KaryawanMapper } from "../mappers/KaryawanMapper";
-import { apiClient } from "../../../../shared/infrastructure/apiClient"; // Axios instance global
+import { KaryawanApiService } from "../services/KaryawanApiService";
 
 export class KaryawanRepositoryImpl implements IKaryawanRepository {
+  constructor(private apiService: KaryawanApiService = new KaryawanApiService()) {}
+
   async getAllKaryawan(): Promise<Karyawan[]> {
-    // Melakukan HTTP request langsung menggunakan axios client
-    const response = await apiClient.get<KaryawanDTO[]>("/v1/karyawan");
-    
-    return response.data.map(KaryawanMapper.toEntity); // Mengubah semua DTO menjadi Entity bersih
+    const dtos = await this.apiService.fetchAllKaryawan();
+    return dtos.map(KaryawanMapper.toEntity);
+  }
+}
+```
+
+### 📁 `data/services/KaryawanApiService.ts`
+
+- **Fungsi:** Layer murni yang mengandung semua fungsi Axios untuk hit database/API. Temannya Repository pattern.
+- **Contoh Isi:**
+
+```typescript
+import { apiClient } from "../../../../shared/infrastructure/apiClient";
+import { KaryawanDTO } from "../dtos/KaryawanDTO";
+
+export class KaryawanApiService {
+  private readonly baseUrl = "/v1/karyawan";
+
+  async fetchAllKaryawan(): Promise<KaryawanDTO[]> {
+    const response = await apiClient.get<KaryawanDTO[]>(this.baseUrl);
+    return response.data;
   }
 }
 ```
