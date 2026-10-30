@@ -4,6 +4,46 @@ Dokumen ini merupakan spesifikasi standar fungsi dari masing-masing folder dan f
 
 Kita akan menggunakan contoh studi kasus fitur **Karyawan**.
 
+# 📂 Struktur Folder Fitur `karyawan/` di React Native
+
+text
+
+```
+src/
+├── shared/                       # 🌐 Komponen global (Shared UI Kit, Api Client Axios)
+│   ├── components/               # Button.tsx, Input.tsx, dll.
+│   └── infrastructure/
+│       └── apiClient.ts          # Instance Axios global untuk fetch ke Express
+│
+└── features/
+    └── karyawan/                 # 📦 Feature: Karyawan
+        ├── index.ts              # 🚪 Feature Public API (Penjaga gawang)
+        │
+        ├── domain/               # 🧠 Domain Layer - PURE TS (Otak bisnis murni)
+        │   ├── entities/         # Karyawan.ts
+        │   ├── repositories/     # IKaryawanRepository.interface.ts
+        │   └── usecases/         # GetKaryawanUseCase.ts
+        │
+        ├── data/                 # 💾 Data Layer (Urusan Axios & mapping API)
+        │   ├── dtos/             # KaryawanDTO.ts (Sesuai JSON response Express)
+        │   ├── mappers/          # KaryawanMapper.ts
+	        ├── services/         # KaryawanApiService.ts -> (Murni tempat fungsi Axios/Hit Database) 
+	        └── repositories/     # KaryawanRepositoryImpl.ts -> (Memanggil ApiService + Mapper)
+        │
+        ├── di/                   # 🔌 DI Layer (Perakit dependensi)
+        │   └── container.ts      # Instansiasi UseCase siap pakai
+        │
+        └── presentation/         # 🎨 Presentation Layer (Urusan Layar Mobile)
+            ├── screens/          # KaryawanScreen.tsx (Halaman Utama)
+            ├── components/       # KaryawanCard.tsx (Komponen kecil khusus karyawan)
+            ├── hooks/            # useKaryawanQuery.ts (TanStack Query)
+            └── store/            # useKaryawanStore.ts (Zustand untuk local state UI)
+```
+
+Gunakan kode dengan hati-hati.
+
+---
+
 ---
 
 ## 🧠 1. Domain Layer (`domain/`)

@@ -1,0 +1,1 @@
+export { KaryawanScreen } from "./presentation/screens/KaryawanScreen";
